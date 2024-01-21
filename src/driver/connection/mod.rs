@@ -379,11 +379,10 @@ async fn init_cipher(
                     if let Some(version) = NonZeroU16::new(desc.dave_protocol_version) {
                         let mut session = davey::DaveSession::new(
                             version,
-                            info.user_id.0.into(),
+                            info.user_id.get(),
                             info.channel_id
                                 .expect("channel ID must be set in connection info")
-                                .0
-                                .into(),
+                                .get(),
                             None,
                         )
                         .map_err(Error::DaveInitializationError)?;
