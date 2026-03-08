@@ -377,20 +377,19 @@ async fn init_cipher(
                     if let Some(version) = NonZeroU16::new(desc.dave_protocol_version) {
                         let mut session = davey::DaveSession::new(
                             version,
-                            info.user_id.get().into(),
+                            info.user_id.get(),
                             info.channel_id
                                 .expect("channel ID must be set in connection info")
-                                .get()
-                                .into(),
+                                .get(),
                             None,
                         )
-                        .map_err(|e| Error::DaveInitializationError(e))?;
+                        .map_err(Error::DaveInitializationError)?;
 
                         client
                             .send_binary(&GatewayEvent::DaveMlsKeyPackage(DaveMlsKeyPackage {
                                 key_package: session
                                     .create_key_package()
-                                    .map_err(|e| Error::DaveCreateKeyPackageError(e))?,
+                                    .map_err(Error::DaveCreateKeyPackageError)?,
                             }))
                             .await?;
 

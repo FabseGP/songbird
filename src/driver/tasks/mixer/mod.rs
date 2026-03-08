@@ -863,7 +863,7 @@ impl Mixer {
             match status {
                 MixStatus::Live => track.step_frame(),
                 MixStatus::Errored(e) => {
-                    track.playing = PlayMode::Errored(PlayError::Decode(e.into()))
+                    track.playing = PlayMode::Errored(PlayError::Decode(e.into()));
                 },
                 MixStatus::Ended if track.do_loop() => {
                     drop(self.track_handles[i].seek(Duration::default()));
