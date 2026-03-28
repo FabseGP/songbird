@@ -27,6 +27,19 @@ fn nonmax_from_nonzero(val: NonZeroU64) -> NonMaxU64 {
 macro_rules! impl_id {
     ($Id:ident, $SerenityId:path, $TwilightId:path) => {
         impl $Id {
+            /// Creates a new ID from a u64.
+            ///
+            /// # Panics
+            ///
+            /// This may panic if an invalid Discord snowflake is passed in, and should not be relied on for storing sentinel values.
+            #[track_caller]
+            pub fn new(inner: u64) -> Self {
+                let inner = NonMaxU64::new(inner)
+                    .expect("Id::new should be called with a valid snowflake ID");
+
+                Self(inner)
+            }
+
             /// Returns the u64 representation of this Id.
             #[must_use]
             pub fn get(self) -> u64 {
@@ -64,17 +77,17 @@ macro_rules! impl_id {
 
 /// ID of a Discord voice/text channel.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-#[repr(packed)]
+#[repr(Rust, packed)]
 pub struct ChannelId(NonMaxU64);
 
 /// ID of a Discord guild (colloquially, "server").
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-#[repr(packed)]
+#[repr(Rust, packed)]
 pub struct GuildId(NonMaxU64);
 
 /// ID of a Discord user.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-#[repr(packed)]
+#[repr(Rust, packed)]
 pub struct UserId(NonMaxU64);
 
 impl_id! {ChannelId, SerenityChannel, TwilightId<ChannelMarker>}
