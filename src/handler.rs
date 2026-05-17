@@ -391,7 +391,7 @@ impl Call {
     /// [`standalone`]: Call::standalone
     #[instrument(skip(self, token))]
     pub fn update_server(&mut self, endpoint: String, token: String) {
-        let try_conn = if let Some((ref mut progress, _)) = self.connection.as_mut() {
+        let try_conn = if let Some((progress, _)) = self.connection.as_mut() {
             progress.apply_server_update(endpoint, token)
         } else {
             false
@@ -419,7 +419,7 @@ impl Call {
 
     fn update_state_inner(&mut self, session_id: String, channel_id: Option<ChannelId>) {
         if let Some(channel_id) = channel_id {
-            let try_conn = if let Some((ref mut progress, _)) = self.connection.as_mut() {
+            let try_conn = if let Some((progress, _)) = self.connection.as_mut() {
                 progress.apply_state_update(session_id, channel_id)
             } else {
                 false

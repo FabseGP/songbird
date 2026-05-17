@@ -213,7 +213,7 @@ impl DriverTestHandle {
         #[async_trait::async_trait]
         impl EventHandler for SongPlayable {
             async fn act(&self, ctx: &crate::EventContext<'_>) -> Option<Event> {
-                if let EventContext::Track(&[(state, _)]) = ctx {
+                if let &EventContext::Track(&[(state, _)]) = ctx {
                     drop(self.tx.send(state.clone()));
                 }
 
@@ -228,7 +228,7 @@ impl DriverTestHandle {
         #[async_trait::async_trait]
         impl EventHandler for SongErred {
             async fn act(&self, ctx: &crate::EventContext<'_>) -> Option<Event> {
-                if let EventContext::Track(&[(state, _)]) = ctx {
+                if let &EventContext::Track(&[(state, _)]) = ctx {
                     drop(self.tx.send(state.playing.clone()));
                 }
 

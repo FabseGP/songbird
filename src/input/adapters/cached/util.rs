@@ -189,8 +189,8 @@ impl Read for ToAudioBytes {
             if source_packet.is_none() {
                 self.done = true;
 
-                if let Some(resample) = self.resample.as_mut() {
-                    if resample.scratch.frames() != 0 {
+                if let Some(resample) = self.resample.as_mut()
+                    && resample.scratch.frames() != 0 {
                         let data = &mut resample.resampled_data;
                         let resampler = &mut resample.resampler;
                         let in_len = resample.scratch.frames();
@@ -217,7 +217,6 @@ impl Read for ToAudioBytes {
                         resample.scratch.clear();
                         resample.resample_pos = 0..out_samples;
                     }
-                }
 
                 // Now go back and make use of the buffer.
                 // We have to do this here because we can't make any guarantees about
@@ -380,7 +379,7 @@ where
 {
     let float_space = buf.len() / SAMPLE_LEN;
     let interleaved_space = float_space / num_chans;
-    let non_contiguous_end = (float_space % num_chans) != 0;
+    let non_contiguous_end = !float_space.is_multiple_of(num_chans);
 
     let remaining = source_pos.len();
     let to_write = remaining.min(interleaved_space);
@@ -424,7 +423,7 @@ fn write_resample_buffer(
 ) -> usize {
     let float_space = buf.len() / SAMPLE_LEN;
     let interleaved_space = float_space / num_chans;
-    let non_contiguous_end = (float_space % num_chans) != 0;
+    let non_contiguous_end = !float_space.is_multiple_of(num_chans);
 
     let remaining = source_pos.len();
     let to_write = remaining.min(interleaved_space);

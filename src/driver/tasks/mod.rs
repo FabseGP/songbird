@@ -64,16 +64,16 @@ async fn runner(mut config: Config, rx: Receiver<CoreMessage>, tx: Sender<CoreMe
     while let Ok(msg) = rx.recv_async().await {
         match msg {
             CoreMessage::ConnectWithResult(info, tx) => {
-                config = if let Some(new_config) = next_config.take() {
+                config = match next_config.take() { Some(new_config) => {
                     drop(
                         interconnect
                             .mixer
                             .send(MixerMessage::SetConfig(new_config.clone())),
                     );
                     new_config
-                } else {
+                } _ => {
                     config
-                };
+                }};
 
                 if connection.as_ref().is_none_or(|conn| conn.info != info) {
                     // Only *actually* reconnect if the conn info changed, or we don't have an
@@ -91,13 +91,12 @@ async fn runner(mut config: Config, rx: Receiver<CoreMessage>, tx: Sender<CoreMe
             },
             CoreMessage::RetryConnect(retry_idx) => {
                 debug!("Retrying idx: {} (vs. {})", retry_idx, attempt_idx);
-                if retry_idx == attempt_idx {
-                    if let Some(progress) = retrying.take() {
+                if retry_idx == attempt_idx
+                    && let Some(progress) = retrying.take() {
                         connection = progress
                             .attempt(&mut retrying, &interconnect, &config)
                             .await;
                     }
-                }
             },
             CoreMessage::Disconnect => {
                 let last_conn = connection.take();
@@ -194,7 +193,7 @@ async fn runner(mut config: Config, rx: Receiver<CoreMessage>, tx: Sender<CoreMe
                         connection = ConnectionRetryData::reconnect(info, &mut attempt_idx)
                             .attempt(&mut retrying, &interconnect, &config)
                             .await;
-                    } else if let Some(ref connection) = &connection {
+                    } else if let Some(connection) = &connection {
                         drop(interconnect.events.send(EventMessage::FireCoreEvent(
                             CoreContext::DriverReconnect(InternalConnect {
                                 info: connection.info.clone(),

@@ -67,8 +67,8 @@ pub fn mix_symph_indiv(
             let buf = pkt.buf();
 
             // Opus packet passthrough special case.
-            if codec_type == CODEC_TYPE_OPUS && local_state.passthrough != Passthrough::Block {
-                if let Some(slot) = opus_slot.as_mut() {
+            if codec_type == CODEC_TYPE_OPUS && local_state.passthrough != Passthrough::Block
+                && let Some(slot) = opus_slot.as_mut() {
                     let sample_ct = if buf.is_empty() || buf.len() > i32::MAX as usize {
                         None
                     } else {
@@ -91,7 +91,6 @@ pub fn mix_symph_indiv(
                         return (MixType::Passthrough(buf.len()), MixStatus::Live);
                     }
                 }
-            }
 
             input
                 .decoder

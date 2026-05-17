@@ -127,11 +127,10 @@ impl CryptoMode {
             };
 
             let mut el_priority = el.priority();
-            if let Some(preferred) = preferred {
-                if el == preferred {
+            if let Some(preferred) = preferred
+                && el == preferred {
                     el_priority = u64::MAX;
                 }
-            }
 
             let accept = match best {
                 None => true,
@@ -273,7 +272,7 @@ impl CryptoState {
         let startpoint = endpoint - mode.nonce_size();
 
         match self {
-            Self::Aes256Gcm(ref mut i) | Self::XChaCha20Poly1305(ref mut i) => {
+            Self::Aes256Gcm(i) | Self::XChaCha20Poly1305(i) => {
                 (&mut packet.payload_mut()[startpoint..endpoint])
                     .write_u32::<NetworkEndian>(i.0)
                     .expect(

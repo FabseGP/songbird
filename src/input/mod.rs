@@ -204,7 +204,7 @@ impl Input {
     /// will always fail with [`AudioStreamError::Unsupported`].
     pub async fn aux_metadata(&mut self) -> Result<AuxMetadata, AuxMetadataError> {
         match self {
-            Self::Lazy(ref mut composer) | Self::Live(_, Some(ref mut composer)) =>
+            Self::Lazy(composer) | Self::Live(_, Some(composer)) =>
                 composer.aux_metadata().await.map_err(Into::into),
             Self::Live(_, None) => Err(AuxMetadataError::NoCompose),
         }
@@ -349,7 +349,7 @@ impl Input {
     /// Returns a mutable reference to the live input, if it been created via
     /// [`Self::make_live`] or [`Self::make_live_async`].
     pub fn live_mut(&mut self) -> Option<&mut LiveInput> {
-        if let Self::Live(ref mut input, _) = self {
+        if let Self::Live(input, _) = self {
             Some(input)
         } else {
             None

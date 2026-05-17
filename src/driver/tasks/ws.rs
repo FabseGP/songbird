@@ -331,19 +331,18 @@ impl AuxNetwork {
                 }
             },
             GatewayEvent::DaveMlsExternalSender(ev) => {
-                if let Some(ref mut dave_session) = *self.dave_session.write().unwrap() {
-                    if let Err(e) = dave_session.set_external_sender(&ev.external_sender) {
+                if let Some(ref mut dave_session) = *self.dave_session.write().unwrap()
+                    && let Err(e) = dave_session.set_external_sender(&ev.external_sender) {
                         warn!(error = ?e, "error setting MLS external sender");
                     }
-                }
             },
             GatewayEvent::DaveMlsProposals(ev) => {
                 let operation_type = match ev.operation_type {
                     DaveMlsProposalsOperationType::Append => davey::ProposalsOperationType::APPEND,
                     DaveMlsProposalsOperationType::Revoke => davey::ProposalsOperationType::REVOKE,
                 };
-                let result = if let Some(ref mut dave_session) = *self.dave_session.write().unwrap()
-                {
+                let result = match *self.dave_session.write().unwrap()
+                { Some(ref mut dave_session) => {
                     match dave_session.process_proposals(
                         operation_type,
                         &ev.proposals,
@@ -361,9 +360,9 @@ impl AuxNetwork {
                             None
                         },
                     }
-                } else {
+                } _ => {
                     None
-                };
+                }};
 
                 if let Some(commit_welcome) = result {
                     self.ws_client
@@ -510,11 +509,10 @@ impl AuxNetwork {
             .store(new_version, Ordering::Relaxed);
 
         // Upgraded from transport-only encryption
-        if transition_id > 0 && old_version == 0 && new_version != 0 {
-            if let Some(ref mut dave_session) = *self.dave_session.write().unwrap() {
+        if transition_id > 0 && old_version == 0 && new_version != 0
+            && let Some(ref mut dave_session) = *self.dave_session.write().unwrap() {
                 dave_session.set_passthrough_mode(true, Some(10));
             }
-        }
 
         self.dave_pending_transitions.remove(&transition_id);
     }

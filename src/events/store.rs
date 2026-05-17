@@ -138,7 +138,7 @@ impl EventStore {
                     }
                 } else {
                     i += 1;
-                };
+                }
             }
             self.untimed[untimed_event] = events;
         }

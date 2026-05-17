@@ -131,12 +131,11 @@ impl Idle {
 
                 let mut i = 0;
                 while i < self.workers.len() {
-                    if let Some(then) = self.workers[i].try_mark_empty(now) {
-                        if now.duration_since(then) >= self.cull_timer {
+                    if let Some(then) = self.workers[i].try_mark_empty(now)
+                        && now.duration_since(then) >= self.cull_timer {
                             self.workers.swap_remove(i);
                             continue;
                         }
-                    }
 
                     i += 1;
                 }

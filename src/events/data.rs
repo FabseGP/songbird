@@ -58,11 +58,10 @@ impl Ord for EventData {
     fn cmp(&self, other: &Self) -> Ordering {
         // FIXME: we don't have let chains in this edition songbird uses so when we upgrade to 2024 edition,
         //   change this to a let chain that way it reads easier
-        if let Some(t1) = &self.fire_time {
-            if let Some(t2) = &other.fire_time {
+        if let Some(t1) = &self.fire_time
+            && let Some(t2) = &other.fire_time {
                 return t2.cmp(t1);
             }
-        }
         Ordering::Equal
     }
 }

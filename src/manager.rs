@@ -323,12 +323,12 @@ impl Songbird {
     }
 
     async fn leave_inner(&self, guild_id: GuildId) -> JoinResult<()> {
-        if let Some(call) = self.get(guild_id) {
+        match self.get(guild_id) { Some(call) => {
             let mut handler = call.lock().await;
             handler.leave().await
-        } else {
+        } _ => {
             Err(JoinError::NoCall)
-        }
+        }}
     }
 
     /// Retrieves the [`Call`] for the given target and leaves the associated

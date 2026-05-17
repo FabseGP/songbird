@@ -236,7 +236,7 @@ impl<'a> InternalTrack {
 
                         self.callbacks.playable();
 
-                        if let InputState::Ready(ref mut parsed, _) = input {
+                        if let InputState::Ready(parsed, _) = input {
                             Ok(parsed)
                         } else {
                             unreachable!()
@@ -274,7 +274,7 @@ impl<'a> InternalTrack {
                                     mix_state.reset();
                                     *input = InputState::Ready(parsed, rec);
 
-                                    if let InputState::Ready(ref mut parsed, _) = input {
+                                    if let InputState::Ready(parsed, _) = input {
                                         Ok(parsed)
                                     } else {
                                         unreachable!()
@@ -298,15 +298,14 @@ impl<'a> InternalTrack {
 
                 let orig_out = orig_out.map(|a| (a, mix_state));
 
-                if let Err(ref e) = orig_out {
-                    if let Some(e) = e.as_user() {
+                if let Err(ref e) = orig_out
+                    && let Some(e) = e.as_user() {
                         self.callbacks.readying_error(e);
                     }
-                }
 
                 (orig_out, queued_seek)
             },
-            InputState::Ready(ref mut parsed, _) => (Ok((parsed, mix_state)), None),
+            InputState::Ready(parsed, _) => (Ok((parsed, mix_state)), None),
         };
 
         match (out, queued_seek) {

@@ -114,7 +114,7 @@ impl<'a> YoutubeDl<'a> {
     pub async fn search(
         &mut self,
         n_results: Option<usize>,
-    ) -> Result<impl Iterator<Item = AuxMetadata>, AudioStreamError> {
+    ) -> Result<impl Iterator<Item = AuxMetadata> + use<>, AudioStreamError> {
         let n_results = n_results.unwrap_or(5);
 
         Ok(self

@@ -425,12 +425,12 @@ impl Live {
             {
                 self.stats.remove_mixer();
 
-                if let Some((id, parked)) = self.remove_task(i) {
+                match self.remove_task(i) { Some((id, parked)) => {
                     self.global_stats.move_mixer_to_idle();
                     _ = self.tx.send(SchedulerMessage::Demote(id, parked));
-                } else {
+                } _ => {
                     self.global_stats.remove_live_mixer();
-                }
+                }}
             } else {
                 i += 1;
             }
@@ -442,15 +442,15 @@ impl Live {
     pub fn offload_mixer(&mut self, idx: usize, cost: Duration) {
         self.stats.remove_mixer();
 
-        if let Some((id, mut parked)) = self.remove_task(idx) {
+        match self.remove_task(idx) { Some((id, mut parked)) => {
             self.global_stats.move_mixer_to_idle();
             parked.last_cost = Some(cost);
             _ = self
                 .tx
                 .send(SchedulerMessage::Overspill(self.id, id, parked));
-        } else {
+        } _ => {
             self.global_stats.remove_live_mixer();
-        }
+        }}
     }
 
     #[inline]

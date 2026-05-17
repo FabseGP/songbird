@@ -157,11 +157,10 @@ impl FormatReader for DcaReader {
                 }
             }
 
-            if let Some(origin) = metadata.origin {
-                if let Some(t) = origin.url {
+            if let Some(origin) = metadata.origin
+                && let Some(t) = origin.url {
                     revision.add_tag(Tag::new(Some(StandardTagKey::Url), "url", Value::String(t)));
                 }
-            }
 
             metas.push(revision.metadata());
         }
@@ -210,11 +209,10 @@ impl FormatReader for DcaReader {
             SeekTo::TimeStamp { ts, .. } => ts,
         };
 
-        if let Some(max_ts) = self.max_ts {
-            if ts > max_ts {
+        if let Some(max_ts) = self.max_ts
+            && ts > max_ts {
                 return symph_err::seek_error(SeekErrorKind::OutOfRange);
             }
-        }
 
         let backseek_needed = self.curr_ts > ts;
 

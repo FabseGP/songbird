@@ -111,11 +111,10 @@ impl FormatReader for RawReader {
             SeekTo::TimeStamp { ts, .. } => ts,
         };
 
-        if let Some(max_ts) = self.max_ts {
-            if ts > max_ts {
+        if let Some(max_ts) = self.max_ts
+            && ts > max_ts {
                 return symph_err::seek_error(SeekErrorKind::OutOfRange);
             }
-        }
 
         let backseek_needed = self.curr_ts > ts;
 

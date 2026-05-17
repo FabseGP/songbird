@@ -435,13 +435,13 @@ impl Mixer {
             }
 
             if let Some(callback) = action.make_playable {
-                if let Err(e) = track.get_or_ready_input(
+                match track.get_or_ready_input(
                     i,
                     &self.interconnect,
                     &self.thread_pool,
                     &self.config,
                     self.prevent_events,
-                ) {
+                ) { Err(e) => {
                     track.callbacks.make_playable = Some(callback);
                     if let Some(fail) = e.as_user() {
                         track.playing = PlayMode::Errored(fail);
@@ -456,10 +456,10 @@ impl Mixer {
                             self.prevent_events,
                         );
                     }
-                } else {
+                } _ => {
                     // Track is already ready: don't register callback and just act.
                     drop(callback.send(Ok(())));
-                }
+                }}
             }
         }
 
@@ -562,14 +562,13 @@ impl Mixer {
         } else {
             self.silence_frames = 5;
 
-            if let MixType::MixedPcm(n) = mix_len {
-                if self.config.use_softclip {
+            if let MixType::MixedPcm(n) = mix_len
+                && self.config.use_softclip {
                     self.soft_clip.apply(
                         &mut self.sample_buffer.samples_mut()
                             [..n * self.config.mix_mode.channels()],
                     );
                 }
-            }
         }
 
         // For the benefit of test cases, send the raw un-RTP'd data.
@@ -644,9 +643,9 @@ impl Mixer {
             )?,
         };
 
-        if conn.dave_protocol_version.load(Ordering::Relaxed) != 0 {
-            if let Some(ref mut dave_session) = *conn.dave_session.write().unwrap() {
-                if dave_session.is_ready() {
+        if conn.dave_protocol_version.load(Ordering::Relaxed) != 0
+            && let Some(ref mut dave_session) = *conn.dave_session.write().unwrap()
+                && dave_session.is_ready() {
                     let encrypted = dave_session
                         .encrypt_opus(
                             &payload[first_payload_byte..first_payload_byte + payload_len],
@@ -657,8 +656,6 @@ impl Mixer {
                     payload[first_payload_byte..first_payload_byte + payload_len]
                         .copy_from_slice(&encrypted);
                 }
-            }
-        }
 
         let final_payload_size = conn
             .crypto_state

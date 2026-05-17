@@ -60,13 +60,13 @@ impl Drop for ChildContainer {
     fn drop(&mut self) {
         let children = mem::take(&mut self.0);
 
-        if let Ok(handle) = Handle::try_current() {
+        match Handle::try_current() { Ok(handle) => {
             handle.spawn_blocking(move || {
                 cleanup_child_processes(children);
             });
-        } else {
+        } _ => {
             cleanup_child_processes(children);
-        }
+        }}
     }
 }
 
