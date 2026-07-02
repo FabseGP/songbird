@@ -247,7 +247,6 @@ impl Compose for YoutubeDl<'_> {
 
     async fn aux_metadata(&mut self) -> Result<AuxMetadata, AudioStreamError> {
         if let Some(meta) = self.metadata.as_ref() {
-            println!("metadata found");
             return Ok(meta.clone());
         }
 
