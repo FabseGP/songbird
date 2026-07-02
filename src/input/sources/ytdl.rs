@@ -1,16 +1,16 @@
 use crate::input::{
-    metadata::YoutubeDlOutput,
     AudioStream,
     AudioStreamError,
     AuxMetadata,
     Compose,
     HttpRequest,
     Input,
+    metadata::YoutubeDlOutput,
 };
 use async_trait::async_trait;
 use reqwest::{
-    header::{HeaderMap, HeaderName, HeaderValue},
     Client,
+    header::{HeaderMap, HeaderName, HeaderValue},
 };
 use std::{borrow::Cow, error::Error, io::ErrorKind};
 use symphonia_core::io::MediaSource;
@@ -247,6 +247,7 @@ impl Compose for YoutubeDl<'_> {
 
     async fn aux_metadata(&mut self) -> Result<AuxMetadata, AudioStreamError> {
         if let Some(meta) = self.metadata.as_ref() {
+            println!("metadata found");
             return Ok(meta.clone());
         }
 
